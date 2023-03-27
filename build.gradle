@@ -17,7 +17,11 @@ dependencies {
     implementation("jakarta.annotation:jakarta.annotation-api")
     runtimeOnly("ch.qos.logback:logback-classic")
     implementation("io.micronaut:micronaut-validation")
-
+    implementation group: 'org.xerial', name: 'sqlite-jdbc', version: '3.41.0.0'
+    annotationProcessor('io.micronaut:micronaut-inject-java:3.8.7')
+    implementation('io.micronaut:micronaut-inject:3.8.7')
+    testAnnotationProcessor('io.micronaut:micronaut-inject-java:3.8.7')
+    implementation("com.fasterxml.jackson.dataformat:jackson-dataformat-xml")
 }
 
 
