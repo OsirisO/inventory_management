@@ -21,10 +21,9 @@ public class InventoryFacade {
     public Item addItem(String name, int quantity, String supplier, float unitCost, String marketingDescription) {
         // Build item
         String id = UUID.randomUUID().toString();
-
         Item item = new Item(id, name, quantity, supplier, unitCost, marketingDescription);
 
-        // Add item to database
+        // Send item to database so it's added
         boolean itemAdded = inventoryRepository.addItem(item);
         if (!itemAdded) {
             return null;

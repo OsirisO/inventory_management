@@ -11,7 +11,6 @@ import java.util.ArrayList;
 
 @Singleton
 public class InventoryRepository {
-
     private final Connection conn;
 
     @Inject
@@ -68,6 +67,7 @@ public class InventoryRepository {
                         result.getString("marketingDescription")
                 );
             }
+
             statement.close();
             return item;
         } catch (Exception e) {
@@ -114,7 +114,13 @@ public class InventoryRepository {
             statement.setFloat(4, item.getUnitCost());
             statement.setString(5, item.getMarketingDescription());
             statement.setString(6, item.getId());
-            statement.executeUpdate();
+            int result = statement.executeUpdate();
+
+            if (result == 0) {
+                // Item not found
+                return false;
+            }
+
             statement.close();
             return true;
         } catch (Exception e) {
@@ -128,7 +134,13 @@ public class InventoryRepository {
 
         try (PreparedStatement statement = conn.prepareStatement(sql)) {
             statement.setString(1, id);
-            statement.executeUpdate();
+            int result = statement.executeUpdate();
+
+            if (result == 0) {
+                // Item not found
+                return false;
+            }
+
             statement.close();
             return true;
         } catch (Exception e) {

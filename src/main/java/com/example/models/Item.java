@@ -8,6 +8,7 @@ public class Item {
     private float unitCost;
     private String marketingDescription;
 
+
     // constructors
     public Item(String id, String name, int quantity, String supplier, float unitCost, String marketingDescription) {
         this.id = id;

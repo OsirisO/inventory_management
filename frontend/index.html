@@ -9,17 +9,33 @@
             $.ajax({
                 url: 'http://localhost:8080/inventory',
                 type: 'GET',
+                headers: {
+                    'Authorization': 'Basic adminInventory',
+                },
                 success: function (data) {
                     const items = data;
+
+                    // if inventory is empty don't show table
+                    if (items.length === 0) {
+                        $('.table').hide();
+                        $('.no-items').show();
+                        return;
+                    }
+
                     const table = $('.table tbody');
 
                     // Remove all rows from table first
                     table.empty();
 
+                    // Add rows to table
                     for (let i = 0; i < items.length; i++) {
                         const row = $('<tr></tr>');
                         row.append($('<td>' + items[i].name + '</td>'));
-                        row.append($('<td>' + items[i].quantity + '</td>'));
+                        if (items[i].quantity <= 5) {
+                            row.append($('<td class="text-danger">' + items[i].quantity + '</td>'));
+                        } else {
+                            row.append($('<td>' + items[i].quantity + '</td>'));
+                        }
                         row.append($('<td>' + items[i].supplier + '</td>'));
                         row.append($('<td>$ ' + items[i].unitCost + '</td>'));
                         row.append($('<td>' + items[i].marketingDescription + '</td>'));
@@ -40,6 +56,9 @@
                 url: 'http://localhost:8080/inventory/' + id,
                 type: 'DELETE',
                 contentType: 'application/json',
+                headers: {
+                    'Authorization': 'Basic adminInventory',
+                },
                 success: function (result) {
                     console.log(result);
                     loadData();
@@ -57,6 +76,9 @@
                 type: 'POST',
                 dataType: "json",
                 contentType: "application/json; charset=utf-8",
+                headers: {
+                    'Authorization': 'Basic adminInventory',
+                },
                 data: JSON.stringify({
                     name: $('input[name=name]').val(),
                     quantity: $('input[name=quantity]').val(),
@@ -66,6 +88,11 @@
                 }),
                 success: function () {
                     loadData();
+                },
+                error: function (request, status, error) {
+                    if (request.status === 400) {
+                        alert("Unable to add item: " + error);
+                    }
                 }
             });
         }
@@ -76,9 +103,12 @@
                 url: 'http://localhost:8080/inventory/export',
                 type: 'GET',
                 dataType: "xml",
+                headers: {
+                    'Authorization': 'Basic adminInventory',
+                },
                 success: function (data) {
                     // Create a download link for the XML file
-                    var downloadLink = document.createElement("a");
+                    const downloadLink = document.createElement("a");
                     downloadLink.href = URL.createObjectURL(new Blob([new XMLSerializer().serializeToString(data)], {type: "text/xml"}));
                     downloadLink.download = "inventory.xml";
                     downloadLink.click();
@@ -105,12 +135,18 @@
 <div class="container mt-5">
     <h1>Inventory System Management</h1>
     <blockquote class="blockquote">
-        <p>Welcome to the inventory, where you can add, edit and delete items.</p>
+        <p>Welcome, you can add, edit and delete items.</p>
     </blockquote>
 
-    <div>
+    <div class="mb-3">
         <button type="button" class="btn btn-primary" onclick="exportXML()">Export inventory</button>
     </div>
+
+    <div class="alert alert-dark" role="alert">
+        The reorder point for all items is 5. If the quantity is 5 or less it will be displayed in red.
+        New items must have a quantity of more than 5.
+    </div>
+
     <div class="mt-5 mb-5">
         <form id="createItemForm">
             <div class="row">
@@ -127,9 +163,9 @@
                     <input type="text" name="unitCost" placeholder="Unit Cost" class="form-control"/>
                 </div>
                 <div class="col">
-                    <input type="text" name="marketingDescription" placeholder="Marketing Description" class="form-control"/>
+                    <input type="text" name="marketingDescription" placeholder="Description" class="form-control"/>
                 </div>
-                <div class="col">
+                <div class="col-sm text-center">
                     <button type="submit" class="btn btn-primary">Create item</button>
                 </div>
             </div>
